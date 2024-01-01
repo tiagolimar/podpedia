@@ -1,0 +1,5 @@
+keyboard==0.13.5
+wikipedia-api==0.5.4
+pygame==2.1.1
+gtts==2.2.2
+nltk==3.6.2
