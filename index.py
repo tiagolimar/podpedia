@@ -1,73 +1,45 @@
-import os
-import time
-
-import wikipediaapi
-import pygame
-import nltk
-
-from gtts import gTTS
+from core import *
+from flask import Flask, request
+from flask_cors import CORS
 
 
-def pesquisa_wikipedia(texto_pesquisa):
-    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    wiki_wiki = wikipediaapi.Wikipedia(user_agent=user_agent, language='pt')
-    page_py = wiki_wiki.page(texto_pesquisa)
+# Cria uma instância do aplicativo Flask
+app = Flask(__name__)
+CORS(app)
 
-    if not page_py.exists():
-        return "Desculpe, a pesquisa não retornou resultados."
-
-    texto = page_py.text[:]  # Limita o texto para não ser muito longo
-
-    return texto
+resposta_dividida = []
+index = 0
+max_index = 0
 
 
-def texto_para_audio(texto, nome_arquivo='output.mp3'):
-    tts = gTTS(texto, lang='pt')
-    tts.save(nome_arquivo)
+@app.route('/')
+def pesquisar():
+    global resposta_dividida, index, max_index
+    # Obtém o valor do parâmetro 'termo'
+    termo = request.args.get('termo', 'Python')
+    resposta = pesquisa_wikipedia(termo)
+    if resposta:
+        resposta_dividida = dividir_texto(resposta)
+        max_index = len(resposta_dividida)
+        resultado = {"max_index": max_index, "index": index}
+        return resultado
+    else:
+        return "error"
 
 
-def reproduzir_audio(nome_arquivo='output.mp3'):
-    pygame.init()
-    pygame.mixer.init()
+@app.route('/audio')
+def obter_audio():
+    global resposta_dividida, index, max_index
+    print(max_index)
+    index = int(request.args.get('index', 0))
+    print(index)
+    print(len(resposta_dividida))
+    trecho = resposta_dividida[index]
+    resposta = texto_para_audio(trecho)
 
-    pygame.mixer.music.load(nome_arquivo)
-    pygame.mixer.music.play()
-
-    while pygame.mixer.music.get_busy():
-        time.sleep(1)
-
-    pygame.mixer.quit()
-
-
-def dividir_texto(texto):
-    # Baixa os dados necessários para a tokenização, caso ainda não estejam presentes
-    nltk.download('punkt')
-
-    # Usa a função sent_tokenize para dividir o texto em frases
-    trechos = nltk.sent_tokenize(texto)
-
-    return trechos
+    return {"status":"ok"}
 
 
-def main():
-    pesquisa = input("Digite o que deseja pesquisar na Wikipedia: ")
-
-    resultado_pesquisa = pesquisa_wikipedia(pesquisa)
-    resultado_em_trechos = dividir_texto(resultado_pesquisa)
-    n_trechos = len(resultado_em_trechos)
-
-    if resultado_pesquisa != "Desculpe, a pesquisa não retornou resultados.":
-        for i in range(n_trechos):
-            os.system('cls')
-            print(f'Executando parte {i+1} de {n_trechos}.')
-            print(f'Total de {len(resultado_pesquisa)} caracteres retornados.')
-
-            trecho_resultado = resultado_em_trechos[i]
-
-            texto_para_audio(trecho_resultado)
-            reproduzir_audio()
-
-
-if __name__ == "__main__":
-    while True:
-        main()
+# Executa o aplicativo se este script for o ponto de entrada
+web()
+app.run(debug=True)
