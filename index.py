@@ -2,7 +2,6 @@ from core import *
 from flask import Flask, request
 from flask_cors import CORS
 
-
 # Cria uma instância do aplicativo Flask
 app = Flask(__name__)
 CORS(app)
@@ -10,7 +9,6 @@ CORS(app)
 resposta_dividida = []
 index = 0
 max_index = 0
-
 
 @app.route('/')
 def pesquisar():

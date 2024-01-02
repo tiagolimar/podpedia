@@ -1,6 +1,4 @@
 import os
-from selenium import webdriver
-
 import wikipediaapi
 import nltk
 
@@ -35,8 +33,7 @@ def dividir_texto(texto):
 
 def web():
     diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-    driver = webdriver.Firefox()
-    driver.get(f'file:///{diretorio_atual}/web/index.html')
+    os.system(f'start file:///{diretorio_atual}/web/index.html')
 
 
 def main():
@@ -54,4 +51,3 @@ def main():
             trecho_resultado = resultado_em_trechos[i]
 
             texto_para_audio(trecho_resultado)
-
