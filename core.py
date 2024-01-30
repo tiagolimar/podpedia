@@ -33,7 +33,8 @@ def dividir_texto(texto):
 
 def web():
     diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-    os.system(f'start file:///{diretorio_atual}/web/index.html')
+    path = diretorio_atual.replace(" ","%").replace("\\","/").replace("//","/")
+    os.system(f'start file:///{path}/web/index.html')
 
 
 def main():
